@@ -29,6 +29,7 @@ class AvatarView: UIView {
   //constants
   let lineWidth: CGFloat = 6.0
   let animationDuration = 1.0
+  var isSquare = false
   
   //ui
   let photoLayer = CALayer()
@@ -103,7 +104,9 @@ class AvatarView: UIView {
                         self.center = point
         },
                        completion: { _ in
-                        //complete bounce to
+                        if self.shouldTransitionToFinishedState {
+                            self.animateToSquare()
+                        }
         }
         )
         
@@ -115,7 +118,9 @@ class AvatarView: UIView {
         },
                          completion: { _ in
                             delay(seconds: 0.1) {
-                                self.bounceOff(point: point, morphSize: morphSize)
+                                if !self.isSquare {
+                                  self.bounceOff(point: point, morphSize: morphSize)
+                                }
                             }
         }
             )
@@ -138,6 +143,19 @@ class AvatarView: UIView {
         
         circleLayer.add(morphAnimation, forKey: nil)
         maskLayer.add(morphAnimation, forKey: nil)
+    }
+    
+    func animateToSquare() {
+        isSquare = true
+        let squarePath = UIBezierPath(rect: bounds).cgPath
+        let squareAnimation = CABasicAnimation(keyPath: "path")
+        squareAnimation.duration = 0.25
+        squareAnimation.fromValue = circleLayer.path
+        squareAnimation.toValue = squarePath
+        circleLayer.add(squareAnimation, forKey: nil)
+        circleLayer.path = squarePath
+        maskLayer.add(squareAnimation, forKey: nil)
+        maskLayer.path = squarePath
     }
   
 }
